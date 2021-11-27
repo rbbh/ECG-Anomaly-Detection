@@ -9,23 +9,31 @@ ignore = ['[', '!', ']', 'x', '(', ')', 'p', 't', 'u', '`', "'", '^', '|', '~', 
 
 
 class Preprocess:
-    def __init__(self, signals, annotations, wavelet_name):
+    def __init__(self, signals, annotations, peaks, split_pct, wavelet_name):
         self.__signals = signals
         self.__annotations = annotations
+        self.__peaks = peaks
+
+        self.__split_pct = split_pct
         self.__wavelet_name = wavelet_name
-        self.beats, self.__mean_len = self.__segment(self.__signals, self.__annotations)
+        self.__beats, self.__mean_len = self.__segment(self.__signals, self.__peaks, self.__annotations)
+
+        self.normal_beats = self.__beats[0]
+        self.abnormal_beats = self.__beats[1]
+        self.len_split = len(self.normal_beats) - len(self.abnormal_beats)
+
         self.normal_scalograms_torch_ds, \
-        self.abnormal_scalograms_torch_ds = self.__extract_wavelets(self.beats,
+        self.abnormal_scalograms_torch_ds = self.__extract_scalograms(self.__beats,
                                                                       self.__wavelet_name,
                                                                       self.__mean_len)
 
     @property
-    def get_normal_beats_len(self):
-        return len(self.beats[0])
+    def get_normal_beats(self):
+        return self.normal_beats
 
     @property
-    def get_abnormal_beats_len(self):
-        return len(self.beats[1])
+    def get_abnormal_beats(self):
+        return self.abnormal_beats
 
     @property
     def get_normal_scalograms(self):
@@ -36,15 +44,12 @@ class Preprocess:
         return self.abnormal_scalograms_torch_ds
 
     @staticmethod
-    def __segment(signals, annotations):
+    def __segment(signals, peaks, annotations):
 
-        peak_idx_array = np.array(annotations.sample)
-        label_array = np.array(annotations.symbol)
-
-        iterable = zip(peak_idx_array[:-2],
-                       peak_idx_array[1:-1],
-                       peak_idx_array[2:],
-                       label_array[1:-1])
+        iterable = zip(peaks[:-2],
+                       peaks[1:-1],
+                       peaks[2:],
+                       annotations[1:-1])
 
         normal_beats = []
         abnormal_beats = []
@@ -67,7 +72,7 @@ class Preprocess:
         return (normal_beats, abnormal_beats), mean_len
 
     @staticmethod
-    def __extract_wavelets(beats, wavelet_name, wavelet_y_axis):
+    def __extract_scalograms(beats, wavelet_name, wavelet_y_axis):
         normal_beats, abnormal_beats = beats
 
         def __normalize(scalogram):
@@ -91,3 +96,9 @@ class Preprocess:
         abnormal_scalograms = __compute_wavelets(abnormal_beats)
 
         return normal_scalograms, abnormal_scalograms
+
+    @staticmethod
+    def split_and_shuffle_dataset(dataset):
+        shuffled_idxs = torch.randperm(len(dataset))
+        shuffled_dataset = dataset[shuffled_idxs]
+

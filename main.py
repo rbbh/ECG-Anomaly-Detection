@@ -23,8 +23,10 @@ def get_config_parser():
 
 
 def run(parser):
-    mit_dir = parser["SIGNALS"]["signal_dir"]
+    mit_dir = parser["SIGNALS"]["mit_dir"]
     channel = int(parser["SIGNALS"]["channel"])
+
+    val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
     wavelet_name = parser["PREPROCESS"]["wavelet"]
 
     epochs = int(parser['MODEL']['epochs'])
@@ -34,16 +36,16 @@ def run(parser):
     dataset = MITBIH(mit_dir, channel)
     signals = dataset.get_signals
     annotations = dataset.get_annotations
+    peaks = dataset.get_peak_locations
 
-    preprocess_obj = Preprocess(signals, annotations, wavelet_name)
-    normal_beats_len = preprocess_obj.get_normal_beats_len
-    abnormal_beats_len = preprocess_obj.get_abnormal_beats_len
+    preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name)
     normal_scalograms = preprocess_obj.get_normal_scalograms
+
+    train_data, val_data, test_data = preprocess_obj.split_and_shuffle_dataset(normal_scalograms)
+
 
     model = AutoEncoder(in_channels=1, dense_neurons=32)
     train_obj = Trainer(normal_scalograms,
-                        normal_beats_len,
-                        abnormal_beats_len,
                         epochs,
                         batch_size,
                         learning_rate,
