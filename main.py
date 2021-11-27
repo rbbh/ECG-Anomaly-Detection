@@ -5,19 +5,23 @@ from dataset.mit_bih import MITBIH
 from source.preprocess import Preprocess
 
 
-def main():
+def get_config_parser():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("-c", "--config", default="-c inputs/configs/default.conf", help="Config input file.")
-
+    arg_parser.add_argument("-c", "--config", default="inputs/configs/default.conf", help="Config input file.")
     args = arg_parser.parse_args()
-    config = args.config
 
+    config = args.config
     config_parser = configparser.ConfigParser()
     config_parser.read(config)
 
-    dir = config_parser["SIGNALS"]["signal_dir"]
-    channel = int(config_parser["SIGNALS"]["channel"])
-    wavelet_name = config_parser["PREPROCESS"]["wavelet"]
+    return config_parser
+
+
+def run(parser):
+
+    dir = parser["SIGNALS"]["signal_dir"]
+    channel = int(parser["SIGNALS"]["channel"])
+    wavelet_name = parser["PREPROCESS"]["wavelet"]
 
     dataset = MITBIH(dir, channel)
     signals = dataset.get_signals
@@ -26,10 +30,10 @@ def main():
     preprocess_obj = Preprocess(signals,
                                 annotations,
                                 wavelet_name)
-
-    beats = preprocess_obj.segment()
-    wavelets = preprocess_obj.extract_wavelets(beats)
+    beats = preprocess_obj.get_normal_beats
+    scalograms = preprocess_obj.get_normal_scalograms
 
 
 if __name__ == "__main__":
-    main()
+    parser = get_config_parser()
+    run(parser)
