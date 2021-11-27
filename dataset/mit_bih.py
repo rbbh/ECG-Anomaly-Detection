@@ -8,6 +8,14 @@ class MITBIH:
         self.signals = self.__load_signals(self.__dir, self.__channel)
         self.annotations = self.__load_annotations(self.__dir)
 
+    @property
+    def get_signals(self):
+        return self.signals
+
+    @property
+    def get_annotations(self):
+        return self.annotations
+
     @staticmethod
     def __load_signals(dir, channel):
         signals, _ = wfdb.rdsamp(dir, pn_dir='mitdb')
@@ -17,11 +25,3 @@ class MITBIH:
     def __load_annotations(dir):
         annotations = wfdb.rdann(dir, 'atr', pn_dir='mitdb')
         return annotations
-
-    @property
-    def get_signals(self):
-        return self.signals
-
-    @property
-    def get_annotations(self):
-        return self.annotations
