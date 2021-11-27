@@ -1,12 +1,11 @@
+import torch
 import argparse
 import configparser
 
-import torch
-
+from source.train import Trainer
 from dataset.mit_bih import MITBIH
 from source.preprocess import Preprocess
 from models.autoencoder import AutoEncoder
-from source.train import Trainer
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -36,12 +35,9 @@ def run(parser):
     signals = dataset.get_signals
     annotations = dataset.get_annotations
 
-    preprocess_obj = Preprocess(signals,
-                                annotations,
-                                wavelet_name)
+    preprocess_obj = Preprocess(signals, annotations, wavelet_name)
     normal_beats_len = preprocess_obj.get_normal_beats_len
     abnormal_beats_len = preprocess_obj.get_abnormal_beats_len
-
     normal_scalograms = preprocess_obj.get_normal_scalograms
 
     model = AutoEncoder(in_channels=1, dense_neurons=32)

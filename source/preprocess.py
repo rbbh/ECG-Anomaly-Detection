@@ -13,27 +13,27 @@ class Preprocess:
         self.__signals = signals
         self.__annotations = annotations
         self.__wavelet_name = wavelet_name
-        self.__beats, self.__mean_len = self.__segment(self.__signals, self.__annotations)
-        self.__normal_scalograms_torch_ds, \
-        self.__abnormal_scalograms_torch_ds = self.__extract_wavelets(self.__beats,
+        self.beats, self.__mean_len = self.__segment(self.__signals, self.__annotations)
+        self.normal_scalograms_torch_ds, \
+        self.abnormal_scalograms_torch_ds = self.__extract_wavelets(self.beats,
                                                                       self.__wavelet_name,
                                                                       self.__mean_len)
 
     @property
     def get_normal_beats_len(self):
-        return len(self.__beats[0])
+        return len(self.beats[0])
 
     @property
     def get_abnormal_beats_len(self):
-        return len(self.__beats[1])
+        return len(self.beats[1])
 
     @property
     def get_normal_scalograms(self):
-        return self.__normal_scalograms_torch_ds
+        return self.normal_scalograms_torch_ds
 
     @property
     def get_abnormal_scalograms(self):
-        return self.__abnormal_scalograms_torch_ds
+        return self.abnormal_scalograms_torch_ds
 
     @staticmethod
     def __segment(signals, annotations):

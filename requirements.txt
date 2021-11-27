@@ -2,3 +2,4 @@ torch~=1.10.0
 tqdm~=4.62.3
 numpy~=1.21.4
 wfdb~=3.4.1
+PyWavelets~=1.2.0
