@@ -20,12 +20,12 @@ class Preprocess:
                                                                       self.__mean_len)
 
     @property
-    def get_normal_beats(self):
-        return self.__beats[0]
+    def get_normal_beats_len(self):
+        return len(self.__beats[0])
 
     @property
-    def get_abnormal_beats(self):
-        return self.__beats[1]
+    def get_abnormal_beats_len(self):
+        return len(self.__beats[1])
 
     @property
     def get_normal_scalograms(self):
