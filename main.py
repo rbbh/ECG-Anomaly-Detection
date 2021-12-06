@@ -28,6 +28,7 @@ def run(parser):
 
     val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
     wavelet_name = parser["PREPROCESS"]["wavelet"]
+    pickle_path = parser["PREPROCESS"]["pickle_path"]
 
     epochs = int(parser['MODEL']['epochs'])
     batch_size = int(parser['MODEL']['batch_size'])
@@ -38,7 +39,7 @@ def run(parser):
     annotations = dataset.get_annotations
     peaks = dataset.get_peak_locations
 
-    preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name)
+    preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name, mit_dir, pickle_path)
     normal_scalograms = preprocess_obj.get_normal_scalograms
 
     train_data, val_data, test_data = preprocess_obj.split_and_shuffle_dataset(normal_scalograms)
