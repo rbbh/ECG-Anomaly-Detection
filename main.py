@@ -30,9 +30,9 @@ def run(parser):
     wavelet_name = parser["PREPROCESS"]["wavelet"]
     pickle_path = parser["PREPROCESS"]["pickle_path"]
 
-    epochs = int(parser['MODEL']['epochs'])
-    batch_size = int(parser['MODEL']['batch_size'])
-    learning_rate = float(parser['MODEL']['learning_rate'])
+    epochs = int(parser['DL-MODEL']['epochs'])
+    batch_size = int(parser['DL-MODEL']['batch_size'])
+    learning_rate = float(parser['DL-MODEL']['learning_rate'])
 
     dataset = MITBIH(mit_dir, channel)
     signals = dataset.get_signals
@@ -42,8 +42,7 @@ def run(parser):
     preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name, mit_dir, pickle_path)
     normal_scalograms = preprocess_obj.get_normal_scalograms
 
-    train_data, val_data, test_data = preprocess_obj.split_and_shuffle_dataset(normal_scalograms)
-
+    train_data, val_data, test_data = preprocess_obj.shuffle_and_split_dataset(normal_scalograms)
 
     model = AutoEncoder(in_channels=1, dense_neurons=32)
     train_obj = Trainer(normal_scalograms,

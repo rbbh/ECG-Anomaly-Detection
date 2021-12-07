@@ -121,10 +121,15 @@ class Preprocess:
 
         return normal_scalograms, abnormal_scalograms
 
-    @staticmethod
-    def split_and_shuffle_dataset(dataset):
-        shuffled_idxs = torch.randperm(len(dataset))
-        shuffled_dataset = dataset[shuffled_idxs]
+    def shuffle_and_split_dataset(self, dataset):
+        idxs = np.arange(len(dataset))
+        np.random.shuffle(idxs)
+
+        train_data = dataset[idxs][:int(self.__len_split * self.__split_pct)]
+        val_data = dataset[idxs][int(self.__len_split * self.__split_pct) : self.__len_split]
+        test_data = dataset[idxs][self.__len_split:]
+
+        return train_data, val_data, test_data
 
     @staticmethod
     def to_torch_ds(dataset):
