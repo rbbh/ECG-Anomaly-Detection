@@ -22,34 +22,49 @@ def get_config_parser():
     return config_parser
 
 
-def run(parser):
+def load_dataset_obj(parser):
     mit_dir = parser["SIGNALS"]["mit_dir"]
     channel = int(parser["SIGNALS"]["channel"])
+    return MITBIH(mit_dir, channel)
 
-    val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
+
+def preprocess_pipeline(parser, dataset_obj):
+    mit_dir = parser["SIGNALS"]["mit_dir"]
     wavelet_name = parser["PREPROCESS"]["wavelet"]
     pickle_path = parser["PREPROCESS"]["pickle_path"]
-
-    epochs = int(parser['DL-MODEL']['epochs'])
     batch_size = int(parser['DL-MODEL']['batch_size'])
-    learning_rate = float(parser['DL-MODEL']['learning_rate'])
+    val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
 
-    dataset = MITBIH(mit_dir, channel)
-    signals = dataset.get_signals
-    annotations = dataset.get_annotations
-    peaks = dataset.get_peak_locations
+    signals = dataset_obj.get_signals
+    annotations = dataset_obj.get_annotations
+    peaks = dataset_obj.get_peak_locations
 
     preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name, mit_dir, pickle_path)
     normal_scalograms = preprocess_obj.get_normal_scalograms
+    normal_scalograms = preprocess_obj.normalize(normal_scalograms)
 
     train_data, val_data, test_data = preprocess_obj.shuffle_and_split_dataset(normal_scalograms)
+    train_loader = preprocess_obj.to_torch_dataloader(train_data, batch_size)
+    val_loader = preprocess_obj.to_torch_dataloader(val_data, batch_size)
+    test_loader = preprocess_obj.to_torch_dataloader(test_data, batch_size)
 
-    model = AutoEncoder(in_channels=1, dense_neurons=32)
-    train_obj = Trainer(normal_scalograms,
+    return train_loader, val_loader, test_loader
+
+
+def run(parser):
+    epochs = int(parser['DL-MODEL']['epochs'])
+    learning_rate = float(parser['DL-MODEL']['learning_rate'])
+
+    dataset_obj = load_dataset_obj(parser)
+    train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
+
+    model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
+    train_obj = Trainer(train_loader,
+                        val_loader,
                         epochs,
-                        batch_size,
                         learning_rate,
                         device)
+    train_obj.train_autoencoder(model)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import pywt
 import pickle
 import numpy as np
 from pathlib import Path
+from torch.utils.data import DataLoader
 
 import torch
 
@@ -90,9 +91,6 @@ class Preprocess:
             with open(base_path / Path(f"{name}.pkl"), "wb") as f:
                 pickle.dump(var, f)
 
-        def __normalize(scalogram):
-            return scalogram - np.min(scalogram) / (np.max(scalogram) - np.min(scalogram))
-
         def __resize(scalogram):
             return cv2.resize(scalogram, (64, 64))
 
@@ -101,8 +99,7 @@ class Preprocess:
             for beat, label in beats:
                 scalogram, _ = pywt.cwt(beat, np.arange(1, wavelet_y_axis + 1), wavelet_name)
                 resized_scalogram = __resize(scalogram)
-                normalized_scalogram = __normalize(resized_scalogram)
-                scalograms.append((normalized_scalogram, label))
+                scalograms.append((resized_scalogram, label))
             return np.array(scalograms)
 
         if not self.__pickle_path:
@@ -121,6 +118,14 @@ class Preprocess:
 
         return normal_scalograms, abnormal_scalograms
 
+    @staticmethod
+    def normalize(features):
+        normalized_features = []
+        for feature, label in features:
+            new_feature = (feature - np.min(feature)) / (np.max(feature) - np.min(feature))
+            normalized_features.append((new_feature, label))
+        return np.array(normalized_features)
+
     def shuffle_and_split_dataset(self, dataset):
         idxs = np.arange(len(dataset))
         np.random.shuffle(idxs)
@@ -132,5 +137,14 @@ class Preprocess:
         return train_data, val_data, test_data
 
     @staticmethod
-    def to_torch_ds(dataset):
-        pass
+    def to_torch_dataloader(dataset, batch_size):
+        X_data = dataset[:, 0]
+        X_data = np.array([arr.astype('float64') for arr in X_data])
+        X_data_torch_ds = torch.from_numpy(X_data).unsqueeze(dim=1)
+
+        loader = DataLoader(
+            X_data_torch_ds,
+            batch_size=batch_size,
+            shuffle=True
+        )
+        return loader
