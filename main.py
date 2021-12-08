@@ -26,8 +26,8 @@ def preprocess_pipeline(parser, dataset_obj):
     mit_dir = parser["SIGNALS"]["mit_dir"]
     wavelet_name = parser["PREPROCESS"]["wavelet"]
     pickle_path = parser["PREPROCESS"]["pickle_path"]
-    batch_size = int(parser['DL-MODEL']['batch_size'])
     val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
+    batch_size = int(parser['DL-MODEL']['batch_size'])
 
     signals = dataset_obj.get_signals
     annotations = dataset_obj.get_annotations
@@ -50,12 +50,13 @@ def run(parser):
     channel = int(parser["SIGNALS"]["channel"])
     epochs = int(parser['DL-MODEL']['epochs'])
     learning_rate = float(parser['DL-MODEL']['learning_rate'])
+    checkpoint_pct = float(parser['DL-MODEL']['checkpoint_pct'])
 
     dataset_obj = MITBIH(mit_dir, channel)
     train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
 
     model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
-    train_obj = Trainer(model, train_loader, val_loader, epochs, learning_rate, device)
+    train_obj = Trainer(model, train_loader, val_loader, epochs, learning_rate, checkpoint_pct, device)
     train_obj.train_autoencoder()
 
 
