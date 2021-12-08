@@ -7,7 +7,7 @@ import configparser
 from source.train import Trainer
 from dataset.mit_bih import MITBIH
 from source.preprocess import Preprocess
-from models.autoencoder import AutoEncoder
+from source.autoencoder import AutoEncoder
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
