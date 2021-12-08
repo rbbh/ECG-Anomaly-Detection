@@ -1,4 +1,6 @@
 import torch
+from torchsummary import summary
+
 import argparse
 import configparser
 
@@ -28,6 +30,7 @@ def preprocess_pipeline(parser, dataset_obj):
     pickle_path = parser["PREPROCESS"]["pickle_path"]
     val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
     batch_size = int(parser['DL-MODEL']['batch_size'])
+    val_batch_size = 10
 
     signals = dataset_obj.get_signals
     annotations = dataset_obj.get_annotations
@@ -39,7 +42,7 @@ def preprocess_pipeline(parser, dataset_obj):
 
     train_data, val_data, test_data = preprocess_obj.shuffle_and_split_dataset(normal_scalograms)
     train_loader = preprocess_obj.to_torch_dataloader(train_data, batch_size)
-    val_loader = preprocess_obj.to_torch_dataloader(val_data, batch_size)
+    val_loader = preprocess_obj.to_torch_dataloader(val_data, val_batch_size)
     test_loader = preprocess_obj.to_torch_dataloader(test_data, batch_size)
 
     return train_loader, val_loader, test_loader
@@ -48,6 +51,7 @@ def preprocess_pipeline(parser, dataset_obj):
 def run(parser):
     mit_dir = parser["SIGNALS"]["mit_dir"]
     channel = int(parser["SIGNALS"]["channel"])
+
     epochs = int(parser['DL-MODEL']['epochs'])
     learning_rate = float(parser['DL-MODEL']['learning_rate'])
     checkpoint_pct = float(parser['DL-MODEL']['checkpoint_pct'])
@@ -56,6 +60,9 @@ def run(parser):
     train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
 
     model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
+    input_shape = train_loader.dataset[0].shape
+    summary(model, input_shape)
+
     train_obj = Trainer(model, train_loader, val_loader, epochs, learning_rate, checkpoint_pct, device)
     train_obj.train_autoencoder()
 
