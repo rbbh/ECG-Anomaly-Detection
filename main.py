@@ -55,8 +55,8 @@ def run(parser):
     train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
 
     model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
-    train_obj = Trainer(train_loader, val_loader, epochs, learning_rate, device)
-    train_obj.train_autoencoder(model)
+    train_obj = Trainer(model, train_loader, val_loader, epochs, learning_rate, device)
+    train_obj.train_autoencoder()
 
 
 if __name__ == "__main__":

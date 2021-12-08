@@ -6,7 +6,8 @@ import torch.optim as optim
 
 
 class Trainer:
-    def __init__(self, train_loader, val_loader, epochs, learning_rate, device='cpu'):
+    def __init__(self, model, train_loader, val_loader, epochs, learning_rate, device='cpu'):
+        self.__model = model
         self.__train_loader = train_loader
         self.__val_loader = val_loader
         self.__epochs = epochs
@@ -22,20 +23,20 @@ class Trainer:
         else:
             print('No GPU available. Training with CPU.')
 
-    def train_autoencoder(self, model):
+    def train_autoencoder(self):
         criterion = nn.MSELoss()
-        optimizer = optim.Adam(model.parameters(), lr=self.__lr)
+        optimizer = optim.Adam(self.__model.parameters(), lr=self.__lr)
 
         avg_train_losses = []
         avg_val_losses = []
         for epoch in tqdm(range(self.__epochs), desc='Training'):
             train_losses = []
-            model.train()
+            self.__model.train()
             for in_feature in self.__train_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
-                out_feature = model(in_feature)
+                out_feature = self.__model(in_feature)
                 out_feature.float().to(self.__device)
 
                 loss = criterion(in_feature, out_feature)
@@ -52,12 +53,12 @@ class Trainer:
             avg_train_losses.append(avg_train_loss)
 
             val_losses = []
-            model.eval()
+            self.__model.eval()
             for in_feature in self.__val_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
-                out_feature = model(in_feature)
+                out_feature = self.__model(in_feature)
                 out_feature.float().to(self.__device)
 
                 loss = criterion(in_feature, out_feature)
@@ -66,6 +67,7 @@ class Trainer:
             avg_val_loss = sum(val_losses) / len(val_losses)
             avg_val_losses.append(avg_val_loss)
 
+            print()
             print(f'Train loss at epoch {epoch + 1} : {avg_train_loss}')
             print(f'Val loss at epoch {epoch + 1} : {avg_val_loss}')
             print()
