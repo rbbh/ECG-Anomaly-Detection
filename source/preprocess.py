@@ -102,7 +102,7 @@ class Preprocess:
                 scalograms.append((resized_scalogram, label))
             return np.array(scalograms)
 
-        if not self.__pickle_path:
+        if not self.__pickle_path or not Path(self.__pickle_path).exists():
             normal_scalograms = __compute_wavelets(normal_beats)
             abnormal_scalograms = __compute_wavelets(abnormal_beats)
             scalograms = np.concatenate((normal_scalograms, abnormal_scalograms), axis=0)
