@@ -51,15 +51,16 @@ def preprocess_pipeline(parser, dataset_obj):
 def run(parser):
     mit_dir = parser["SIGNALS"]["mit_dir"]
     channel = int(parser["SIGNALS"]["channel"])
-
     epochs = int(parser['DL-MODEL']['epochs'])
+
     learning_rate = float(parser['DL-MODEL']['learning_rate'])
+    dense_neurons = int(parser['DL-MODEL']['dense_neurons'])
     checkpoint_pct = float(parser['DL-MODEL']['checkpoint_pct'])
 
     dataset_obj = MITBIH(mit_dir, channel)
     train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
 
-    model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
+    model = AutoEncoder(in_channels=1, dense_neurons=dense_neurons).to(device)
     input_shape = train_loader.dataset[0].shape
     summary(model, input_shape)
 
