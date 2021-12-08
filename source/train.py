@@ -52,10 +52,12 @@ class Trainer:
                 'loss': val_loss,
             }, final_path)
 
+            return final_path
+
         for epoch in tqdm(range(self.__epochs), desc='Training'):
             train_losses = []
             self.__model.train()
-            for in_feature in self.__train_loader:
+            for in_feature, _ in self.__train_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
@@ -77,7 +79,7 @@ class Trainer:
 
             val_losses = []
             self.__model.eval()
-            for in_feature in self.__val_loader:
+            for in_feature, _ in self.__val_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
@@ -98,9 +100,9 @@ class Trainer:
                 if avg_val_loss < curr_best_loss:
                     print("New Best Weights Found!\n")
                     print(f"Current best validation loss: {avg_val_loss:.6f}\n")
-                    __save_model_checkpoint(self.__model, self.__epochs, avg_val_loss)
+                    final_model_path = __save_model_checkpoint(self.__model, self.__epochs, avg_val_loss)
                     curr_best_loss = avg_val_loss
                 else:
                     print("No best weights in this checkpoint.\n")
 
-        return avg_train_losses, avg_val_losses
+        return final_model_path
