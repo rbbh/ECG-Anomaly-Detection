@@ -5,6 +5,8 @@ class AutoEncoder(nn.Module):
     def __init__(self, in_channels=1, dense_neurons=32):
         super(AutoEncoder, self).__init__()
 
+        self.__dense_neurons = dense_neurons
+
         self.encoder = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=16, kernel_size=(3, 3), padding="same"),
             nn.ReLU(),
@@ -39,6 +41,10 @@ class AutoEncoder(nn.Module):
             nn.Conv2d(in_channels=16, out_channels=1, kernel_size=(3, 3), padding="same"),
             nn.Sigmoid()
         )
+
+    @property
+    def get_dense_neurons(self):
+        return self.__dense_neurons
 
     def encoder_forward(self, x):
         x = self.encoder(x)
