@@ -12,15 +12,16 @@ ignore = ['[', '!', ']', 'x', '(', ')', 'p', 't', 'u', '`', "'", '^', '|', '~', 
 
 
 class Preprocess:
-    def __init__(self, signals, annotations, peaks, split_pct, wavelet_name, mit_dir, pickle_path=None):
+    def __init__(self, signals, annotations, peaks, split_pct, wavelet_name, channel, mit_dir, pickle_path=None):
         self.__signals = signals
         self.__annotations = annotations
         self.__peaks = peaks
 
         self.__split_pct = split_pct
         self.__wavelet_name = wavelet_name
-        self.__mit_dir = mit_dir
+        self.__channel = channel
 
+        self.__mit_dir = mit_dir
         self.__pickle_path = pickle_path
         self.__beats, self.__mean_len = self.__segment(self.__signals, self.__peaks, self.__annotations)
 
@@ -100,16 +101,17 @@ class Preprocess:
                 scalogram, _ = pywt.cwt(beat, np.arange(1, wavelet_y_axis + 1), wavelet_name)
                 resized_scalogram = __resize(scalogram)
                 scalograms.append((resized_scalogram, label))
-            return np.array(scalograms)
+            return np.array(scalograms, dtype=object)
 
-        if not self.__pickle_path or not Path(self.__pickle_path).exists():
+        pickle_name = f"scalograms_mitdir_{self.__mit_dir}_wavelet_{self.__wavelet_name}_channel_{self.__channel}"
+        if not self.__pickle_path or not Path(self.__pickle_path).joinpath(pickle_name).with_suffix(".pkl").exists():
             normal_scalograms = __compute_wavelets(normal_beats)
             abnormal_scalograms = __compute_wavelets(abnormal_beats)
             scalograms = np.concatenate((normal_scalograms, abnormal_scalograms), axis=0)
-            __save_pickle(scalograms, f"scalograms_mitdir_{self.__mit_dir}_wavelet_{self.__wavelet_name}")
+            __save_pickle(scalograms, pickle_name)
 
         else:
-            scalograms = __load_pickle(self.__pickle_path)
+            scalograms = __load_pickle(Path(self.__pickle_path).joinpath(pickle_name).with_suffix(".pkl"))
             normal_idxs = np.where((scalograms[:, 1] == 'N') | (scalograms[:, 1] == 'L') | (scalograms[:, 1] == 'R'))
             abnormal_idxs = np.where((scalograms[:, 1] != 'N') & (scalograms[:, 1] != 'L') & (scalograms[:, 1] != 'R'))
 

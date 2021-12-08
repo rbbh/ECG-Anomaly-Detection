@@ -26,8 +26,11 @@ def get_config_parser():
 
 def preprocess_pipeline(parser, dataset_obj):
     mit_dir = parser["SIGNALS"]["mit_dir"]
+    channel = int(parser["SIGNALS"]["channel"])
+
     wavelet_name = parser["PREPROCESS"]["wavelet"]
     pickle_path = parser["PREPROCESS"]["pickle_path"]
+
     val_split_pct = float(parser["PREPROCESS"]["train_val_split_pct"])
     batch_size = int(parser['DL-MODEL']['batch_size'])
     val_batch_size = 10
@@ -36,7 +39,7 @@ def preprocess_pipeline(parser, dataset_obj):
     annotations = dataset_obj.get_annotations
     peaks = dataset_obj.get_peak_locations
 
-    preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name, mit_dir, pickle_path)
+    preprocess_obj = Preprocess(signals, annotations, peaks, val_split_pct, wavelet_name, channel, mit_dir, pickle_path)
     normal_scalograms = preprocess_obj.get_normal_scalograms
     normal_scalograms = preprocess_obj.normalize(normal_scalograms)
 
