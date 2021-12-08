@@ -124,7 +124,7 @@ class Preprocess:
         for feature, label in features:
             new_feature = (feature - np.min(feature)) / (np.max(feature) - np.min(feature))
             normalized_features.append((new_feature, label))
-        return np.array(normalized_features)
+        return np.array(normalized_features, dtype=object)
 
     def shuffle_and_split_dataset(self, dataset):
         idxs = np.arange(len(dataset))
