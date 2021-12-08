@@ -22,12 +22,6 @@ def get_config_parser():
     return config_parser
 
 
-def load_dataset_obj(parser):
-    mit_dir = parser["SIGNALS"]["mit_dir"]
-    channel = int(parser["SIGNALS"]["channel"])
-    return MITBIH(mit_dir, channel)
-
-
 def preprocess_pipeline(parser, dataset_obj):
     mit_dir = parser["SIGNALS"]["mit_dir"]
     wavelet_name = parser["PREPROCESS"]["wavelet"]
@@ -52,18 +46,16 @@ def preprocess_pipeline(parser, dataset_obj):
 
 
 def run(parser):
+    mit_dir = parser["SIGNALS"]["mit_dir"]
+    channel = int(parser["SIGNALS"]["channel"])
     epochs = int(parser['DL-MODEL']['epochs'])
     learning_rate = float(parser['DL-MODEL']['learning_rate'])
 
-    dataset_obj = load_dataset_obj(parser)
+    dataset_obj = MITBIH(mit_dir, channel)
     train_loader, val_loader, test_loader = preprocess_pipeline(parser, dataset_obj)
 
     model = AutoEncoder(in_channels=1, dense_neurons=32).to(device)
-    train_obj = Trainer(train_loader,
-                        val_loader,
-                        epochs,
-                        learning_rate,
-                        device)
+    train_obj = Trainer(train_loader, val_loader, epochs, learning_rate, device)
     train_obj.train_autoencoder(model)
 
 
