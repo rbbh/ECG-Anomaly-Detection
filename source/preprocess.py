@@ -89,7 +89,7 @@ class Preprocess:
             base_path = Path("dataset/scalograms")
             if not base_path.exists():
                 base_path.mkdir(parents=True, exist_ok=True)
-            with open(base_path / Path(f"{name}.pkl"), "wb") as f:
+            with open(base_path / f"{name}.pkl", "wb") as f:
                 pickle.dump(var, f)
 
         def __resize(scalogram):

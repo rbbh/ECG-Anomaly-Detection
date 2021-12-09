@@ -29,8 +29,7 @@ class Trainer:
 
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.__model.parameters(), lr=self.__lr)
-        model_base_path = Path("models") / Path("saved_models") / \
-                          Path(f"{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs")
+        model_base_path = f"models/saved_models/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
         curr_best_loss = sys.maxsize
         avg_train_losses = []
         avg_val_losses = []
@@ -38,13 +37,13 @@ class Trainer:
         checkpoints = [e for e in range(interval, self.__epochs + interval, interval)]
 
         def __save_model_checkpoint(model, epochs, val_loss):
-            if not model_base_path.exists():
-                model_base_path.mkdir(parents=True, exist_ok=True)
-            curr_files = [file for file in model_base_path.glob("*.pt")]
+            if not Path(model_base_path).exists():
+                Path(model_base_path).mkdir(parents=True, exist_ok=True)
+            curr_files = [file for file in Path(model_base_path).glob("*.pt")]
             for current in curr_files:
                 current.unlink()
 
-            final_path = model_base_path / Path(f"torch_model_val_loss_{val_loss:.6f}.pt")
+            final_path = Path(model_base_path) / f"torch_model_val_loss_{val_loss:.6f}.pt"
             torch.save({
                 'epoch': epochs,
                 'model_state_dict': model.state_dict(),
