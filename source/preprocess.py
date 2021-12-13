@@ -146,6 +146,7 @@ class Preprocess:
     @staticmethod
     def join_datasets(ds_1, ds_2):
         joined_ds = np.concatenate((ds_1, ds_2), axis=0)
+        np.random.shuffle(joined_ds)
         return joined_ds
 
     @staticmethod
