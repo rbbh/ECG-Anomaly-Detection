@@ -25,6 +25,22 @@ class MITBIH:
         return self.peaks
 
     def __load_signals(self, dir, channel):
+        """Loads ECG time signals.
+
+        Parameters
+        ----------
+        dir : str
+              MIT-BIH signal directory.
+        channel : int
+                  Channel ID from where the signals will be extracted.
+
+
+        Returns
+        -------
+        signals : numpy-array
+                  Extracted signals.
+
+        """
         csv_path = self.__base_path / self.__dir.with_suffix('.csv')
         if csv_path.exists():
             signals_df = pd.read_csv(csv_path)
@@ -38,6 +54,21 @@ class MITBIH:
         return signals
 
     def __load_annotations(self, dir):
+        """Loads ECG peak locations and beat labels.
+
+        Parameters
+        ----------
+        dir : str
+              MIT-BIH signal directory.
+
+        Returns
+        -------
+        annotations : numpy-array
+                      Labels of each beat.
+        peaks : numpy-array
+                Indexes of each signal peak.
+
+        """
         annot_path = self.__base_path / self.__dir.with_suffix('.annot')
         if annot_path.exists():
             annotations_df = pd.read_csv(annot_path)

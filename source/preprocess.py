@@ -69,7 +69,7 @@ class Preprocess:
         abnormal_beats : numpy-array
                          Segmented anomaly beats.
         mean_len : float
-                   Mean number of samples of each beat.
+                   Average amount of beat samples.
 
         """
 
