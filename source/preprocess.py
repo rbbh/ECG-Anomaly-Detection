@@ -12,6 +12,77 @@ ignore = ['[', '!', ']', 'x', '(', ')', 'p', 't', 'u', '`', "'", '^', '|', '~', 
 
 
 class Preprocess:
+    """ This class implements a series of methods with the goal to pre-process the ECG signals, such as extracting
+    the single beats, features and also split and normalize the extracted data.
+
+    Attributes
+    __________
+    _Preprocess.__signals : numpy-array
+                            Raw ECG signals.
+
+    _Preprocess.__annotations : numpy-array
+                                ECG beat labels
+
+    _Preprocess.__peaks : numpy-array
+                          ECG peak locations.
+
+    _Preprocess.__split_pct : float
+                              Split percentage between train and validation data.
+
+    _Preprocess.__wavelet_name: str
+                                Continuous Wavelet Transform type of wavelet that will extract scalograms.
+
+    _Preprocess.__channel : int
+                            Channel id of the electrode used to extract the ECG signals.
+
+    _Preprocess.__mit_dir : str
+                            MIT-BIH database extract directory.
+
+    _Preprocess.__pickle_path: str
+                               Path where the features are saved in the pickle format.
+
+    _Preprocess.__beats : tuple
+                          ECG extracted single beats.
+
+    _Preprocess.__mean_len : float
+                             Mean length of the extracted ECG beats.
+
+    _Preprocess.__normal_beats : numpy-array
+                                 Normal ECG beats.
+
+    _Preprocess.__abnormal_beats : numpy-array
+                                   Abnormal ECG beats.
+
+    _Preprocess.__len_split : float
+                              Split size that will be used to balance the normal and abnormal classes on the test data.
+
+    _Preprocess.__normal_scalograms : numpy-array
+                                      Normal extracted scalograms.
+
+    _Preprocess.__abnormal_scalograms : numpy-array
+                                        Abnormal extracted scalograms.
+
+    Methods
+    -------
+    _Preprocess.__segment : Private
+                            Segments raw ECG signals into single beats.
+
+    _Preprocess.__extract_scalograms : Private
+                                       Extracts features of the ECG beats in the form of scalograms.
+
+    _Preprocess.normalize : Public
+                            Applies a min-max normalization on the data.
+
+    _Preprocess.shuffle_and_split_dataset : Public
+                                            Shuffles and splits the data.
+
+    _Preprocess.join_datasets : Public
+                                Concatenates datasets.
+
+    _Preprocess.to_torch_ds : Public
+                              Converts dataset to torch dataset format.
+
+    """
     def __init__(self, signals, annotations, peaks, split_pct, wavelet_name, channel, mit_dir, pickle_path=None):
         self.__signals = signals
         self.__annotations = annotations
@@ -122,11 +193,34 @@ class Preprocess:
         normal_beats, abnormal_beats = beats
 
         def __load_pickle(path):
+            """Loads features from pickle file.
+
+            Parameters
+            ----------
+            path : str
+                   Path to load pickle file from.
+
+            Returns
+            -------
+            var : numpy-array
+                  Loaded features.
+
+            """
             with open(path, "rb") as f:
                 var = pickle.load(f)
             return var
 
         def __save_pickle(var, name):
+            """
+
+            Parameters
+            ----------
+            var : numpy-array
+                  Features.
+            name : str
+                   Name from the pickle file to be saved.
+
+            """
             base_path = Path("dataset/scalograms")
             if not base_path.exists():
                 base_path.mkdir(parents=True, exist_ok=True)
