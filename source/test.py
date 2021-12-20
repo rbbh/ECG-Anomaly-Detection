@@ -5,7 +5,8 @@ from sklearn.neighbors import LocalOutlierFactor
 
 
 class Tester:
-    """
+    """ This class runs the inference on the chosen models using the test data.
+
     Attributes
     ----------
     _Tester.__test_loader : list
