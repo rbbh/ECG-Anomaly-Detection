@@ -11,7 +11,7 @@ class Trainer:
     """This class is responsible for the training of the DL-Model.
 
     Attributes
-    __________
+    ----------
     _Trainer.__model : object
                        DL-Model object.
 

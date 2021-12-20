@@ -19,7 +19,7 @@ class Tester:
                        Device to run the DL-Model.
 
     Methods
-    _______
+    -------
     _Tester.evaluate : Public
                        Runs the inference on the model.
 

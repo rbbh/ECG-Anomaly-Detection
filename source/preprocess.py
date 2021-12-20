@@ -16,12 +16,12 @@ class Preprocess:
     single beats, features and also split and normalize the extracted data.
 
     Attributes
-    __________
+    ----------
     _Preprocess.__signals : numpy-array
                             Raw ECG signals.
 
     _Preprocess.__annotations : numpy-array
-                                ECG beat labels
+                                ECG beat labels.
 
     _Preprocess.__peaks : numpy-array
                           ECG peak locations.
