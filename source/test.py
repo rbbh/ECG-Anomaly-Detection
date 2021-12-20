@@ -5,12 +5,37 @@ from sklearn.neighbors import LocalOutlierFactor
 
 
 class Tester:
+    """ Attributes
+        ----------
+        _Tester.__test_loader : list
+                                Organized test data.
+
+        _Tester.__ml_model : string
+                             Chosen ML-Model to use.
+
+        _Tester.__device : string
+                           Device to run the DL-Model.
+
+        Methods
+        _______
+        _Tester.evaluate : Runs the inference on the model.
+
+    """
+
     def __init__(self, test_loader, ml_model, device):
         self.__test_loader = test_loader
         self.__ml_model = ml_model
         self.__device = device
 
     def evaluate(self, model):
+        """Extracts the embedding feature vectors of the pre-trained encoder after running the inference with the
+        scalograms and feeds them to the chosen ML model in order to compute the metrics.
+
+        Parameters
+        ----------
+        model : object
+                Pre-trained encoder.
+        """
         normal_vectors = []
         abnormal_vectors = []
 
