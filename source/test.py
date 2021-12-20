@@ -19,7 +19,8 @@ class Tester:
 
     Methods
     _______
-    _Tester.evaluate : Runs the inference on the model.
+    _Tester.evaluate : Public
+                       Runs the inference on the model.
 
     """
 
