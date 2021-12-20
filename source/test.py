@@ -5,20 +5,21 @@ from sklearn.neighbors import LocalOutlierFactor
 
 
 class Tester:
-    """ Attributes
-        ----------
-        _Tester.__test_loader : list
-                                Organized test data.
+    """
+    Attributes
+    ----------
+    _Tester.__test_loader : list
+                            Organized test data.
 
-        _Tester.__ml_model : str
-                             Chosen ML-Model to use.
+    _Tester.__ml_model : str
+                         Chosen ML-Model to use.
 
-        _Tester.__device : str
-                           Device to run the DL-Model.
+    _Tester.__device : str
+                       Device to run the DL-Model.
 
-        Methods
-        _______
-        _Tester.evaluate : Runs the inference on the model.
+    Methods
+    _______
+    _Tester.evaluate : Runs the inference on the model.
 
     """
 
