@@ -5,26 +5,73 @@ from pathlib import Path
 
 
 class MITBIH:
+    """This class implements the loading procedures of the MIT-BIH dataset.
+
+    Attributes
+    ----------
+    _MITBIH.__dir : str
+                    MIT-BIH signal directory.
+
+    _MITBIH.__channel : int
+                        Channel id of the electrode used to extract the ECG signals.
+
+    _MITBIH.__base_path : object
+                          Path object used to save new raw ECG signals.
+
+    _MITBIH.__signals : numpy-array
+                        Raw ECG signals.
+
+    _MITBIH.__annotations : numpy-array
+                            ECG beat labels.
+
+    _MITBIH.__peaks : numpy-array
+                      ECG peak locations.
+
+    Methods
+    -------
+    _MITBIH.__load_signals : Private
+                             Loads the raw ECG signals.
+
+    _MITBIH.__load_annotations : Private
+                                 Loads the ECG beat labels and peak locations.
+
+    """
     def __init__(self, dir, channel):
         self.__dir = Path(dir)
         self.__channel = channel
         self.__base_path = Path('dataset/signals')
-        self.signals = self.__load_signals(self.__dir, self.__channel)
-        self.annotations, self.peaks = self.__load_annotations(self.__dir)
+        self.__signals = self.__load_signals(self.__dir, self.__channel)
+        self.__annotations, self.__peaks = self.__load_annotations(self.__dir)
 
     @property
     def get_signals(self):
-        return self.signals
+        return self.__signals
 
     @property
     def get_annotations(self):
-        return self.annotations
+        return self.__annotations
 
     @property
     def get_peak_locations(self):
-        return self.peaks
+        return self.__peaks
 
     def __load_signals(self, dir, channel):
+        """Loads ECG time signals.
+
+        Parameters
+        ----------
+        dir : object
+              MIT-BIH signal directory.
+        channel : int
+                  Channel ID from where the signals will be extracted.
+
+
+        Returns
+        -------
+        signals : numpy-array
+                  Extracted signals.
+
+        """
         csv_path = self.__base_path / self.__dir.with_suffix('.csv')
         if csv_path.exists():
             signals_df = pd.read_csv(csv_path)
@@ -38,6 +85,21 @@ class MITBIH:
         return signals
 
     def __load_annotations(self, dir):
+        """Loads ECG peak locations and beat labels.
+
+        Parameters
+        ----------
+        dir : object
+              MIT-BIH signal directory.
+
+        Returns
+        -------
+        annotations : numpy-array
+                      Labels of each beat.
+        peaks : numpy-array
+                Indexes of each signal peak.
+
+        """
         annot_path = self.__base_path / self.__dir.with_suffix('.annot')
         if annot_path.exists():
             annotations_df = pd.read_csv(annot_path)

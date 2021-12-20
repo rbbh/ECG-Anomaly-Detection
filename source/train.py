@@ -8,6 +8,37 @@ import torch.optim as optim
 
 
 class Trainer:
+    """This class is responsible for the training of the DL-Model.
+
+    Attributes
+    ----------
+    _Trainer.__model : object
+                       DL-Model object.
+
+    _Trainer.__train_loader : object
+                              Torch train Dataloader object.
+
+    _Trainer.__val_loader : object
+                            Torch validation Dataloader object.
+
+    _Trainer.__epochs : int
+                        Number of epochs to train the DL-Model.
+
+    _Trainer.__lr : float
+                    Learning rate used to train the DL-Model.
+
+    _Trainer.__checkpoint_pct : float
+                                Checkpoint interval in the epochs to verify whether to save a new model or not.
+
+    _Trainer.__device : str
+                        Device where the training will occur.
+
+    Methods
+    -------
+    _Trainer.train_autoencoder : Public
+                                 Method that implements the Auto-Encoder training.
+
+    """
     def __init__(self, model, train_loader, val_loader, epochs, learning_rate, checkpoint_pct, device='cpu'):
         self.__model = model
         self.__train_loader = train_loader
@@ -18,6 +49,16 @@ class Trainer:
         self.__device = device
 
     def train_autoencoder(self):
+        """This method implements the Auto-Encoder training. Despite being public, the idea is that an external user
+        does not worry about its operation and should only call it whenever they feel like training the Auto-Encoder
+        from scratch.
+
+        Returns
+        -------
+        final_model_path : str
+                           Path from where to get the best saved model from the training.
+
+        """
         if self.__device.type == 'cuda':
             print('Trainable GPU Device(s) Detected!')
             print('CUDNN VERSION:', torch.backends.cudnn.version())
@@ -29,8 +70,7 @@ class Trainer:
 
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.__model.parameters(), lr=self.__lr)
-        model_base_path = Path("models") / Path("saved_models") / \
-                          Path(f"{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs")
+        model_base_path = f"inputs/models/saved_models/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
         curr_best_loss = sys.maxsize
         avg_train_losses = []
         avg_val_losses = []
@@ -38,13 +78,13 @@ class Trainer:
         checkpoints = [e for e in range(interval, self.__epochs + interval, interval)]
 
         def __save_model_checkpoint(model, epochs, val_loss):
-            if not model_base_path.exists():
-                model_base_path.mkdir(parents=True, exist_ok=True)
-            curr_files = [file for file in model_base_path.glob("*.pt")]
+            if not Path(model_base_path).exists():
+                Path(model_base_path).mkdir(parents=True, exist_ok=True)
+            curr_files = [file for file in Path(model_base_path).glob("*.pt")]
             for current in curr_files:
                 current.unlink()
 
-            final_path = model_base_path / Path(f"torch_model_val_loss_{val_loss:.6f}.pt")
+            final_path = Path(model_base_path) / f"torch_model_val_loss_{val_loss:.6f}.pt"
             torch.save({
                 'epoch': epochs,
                 'model_state_dict': model.state_dict(),
@@ -52,10 +92,12 @@ class Trainer:
                 'loss': val_loss,
             }, final_path)
 
+            return final_path
+
         for epoch in tqdm(range(self.__epochs), desc='Training'):
             train_losses = []
             self.__model.train()
-            for in_feature in self.__train_loader:
+            for in_feature, _ in self.__train_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
@@ -77,7 +119,7 @@ class Trainer:
 
             val_losses = []
             self.__model.eval()
-            for in_feature in self.__val_loader:
+            for in_feature, _ in self.__val_loader:
                 in_feature = in_feature.float().to(self.__device)
 
                 # Forward
@@ -98,9 +140,9 @@ class Trainer:
                 if avg_val_loss < curr_best_loss:
                     print("New Best Weights Found!\n")
                     print(f"Current best validation loss: {avg_val_loss:.6f}\n")
-                    __save_model_checkpoint(self.__model, self.__epochs, avg_val_loss)
+                    final_model_path = __save_model_checkpoint(self.__model, self.__epochs, avg_val_loss)
                     curr_best_loss = avg_val_loss
                 else:
                     print("No best weights in this checkpoint.\n")
 
-        return avg_train_losses, avg_val_losses
+        return final_model_path
