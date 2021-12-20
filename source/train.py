@@ -8,6 +8,37 @@ import torch.optim as optim
 
 
 class Trainer:
+    """This class is responsible for the training of the DL-Model.
+
+    Attributes
+    __________
+    _Trainer.__model : object
+                       DL-Model object.
+
+    _Trainer.__train_loader : object
+                              Torch train Dataloader object.
+
+    _Trainer.__val_loader : object
+                            Torch validation Dataloader object.
+
+    _Trainer.__epochs : int
+                        Number of epochs to train the DL-Model.
+
+    _Trainer.__lr : float
+                    Learning rate used to train the DL-Model.
+
+    _Trainer.__checkpoint_pct : float
+                                Checkpoint interval in the epochs to verify whether to save a new model or not.
+
+    _Trainer.__device : str
+                        Device where the training will occur.
+
+    Methods
+    -------
+    _Trainer.train_autoencoder : Public
+                                 Method that implements the Auto-Encoder training.
+
+    """
     def __init__(self, model, train_loader, val_loader, epochs, learning_rate, checkpoint_pct, device='cpu'):
         self.__model = model
         self.__train_loader = train_loader
@@ -18,6 +49,16 @@ class Trainer:
         self.__device = device
 
     def train_autoencoder(self):
+        """This method implements the Auto-Encoder training. Despite being public, the idea is that an external user
+        does not worry about its operation and should only call it whenever they feel like training the Auto-Encoder
+        from scratch.
+
+        Returns
+        -------
+        final_model_path : str
+                           Path from where to get the best saved model from the training.
+
+        """
         if self.__device.type == 'cuda':
             print('Trainable GPU Device(s) Detected!')
             print('CUDNN VERSION:', torch.backends.cudnn.version())

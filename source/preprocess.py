@@ -12,8 +12,8 @@ ignore = ['[', '!', ']', 'x', '(', ')', 'p', 't', 'u', '`', "'", '^', '|', '~', 
 
 
 class Preprocess:
-    """ This class implements a series of methods with the goal to pre-process the ECG signals, such as extracting
-    the single beats, features and also split and normalize the extracted data.
+    """This class implements a series of methods with the goal to pre-process the ECG signals, such as extracting the
+    single beats, features and also split and normalize the extracted data.
 
     Attributes
     __________
