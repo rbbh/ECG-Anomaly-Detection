@@ -10,10 +10,10 @@ class Tester:
         _Tester.__test_loader : list
                                 Organized test data.
 
-        _Tester.__ml_model : string
+        _Tester.__ml_model : str
                              Chosen ML-Model to use.
 
-        _Tester.__device : string
+        _Tester.__device : str
                            Device to run the DL-Model.
 
         Methods
