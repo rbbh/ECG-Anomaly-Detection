@@ -70,7 +70,7 @@ class Trainer:
 
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.__model.parameters(), lr=self.__lr)
-        model_base_path = f"models/saved_models/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
+        model_base_path = f"inputs/models/saved_models/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
         curr_best_loss = sys.maxsize
         avg_train_losses = []
         avg_val_losses = []
