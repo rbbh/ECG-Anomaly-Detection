@@ -5,6 +5,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from source.preprocess import Preprocess
 
 
 class Trainer:
@@ -14,6 +15,9 @@ class Trainer:
     ----------
     _Trainer.__model : object
                        DL-Model object.
+
+    _Trainer.__feature_type : str
+                              Type of feature used.
 
     _Trainer.__train_loader : object
                               Torch train Dataloader object.
@@ -39,10 +43,15 @@ class Trainer:
                                  Method that implements the Auto-Encoder training.
 
     """
-    def __init__(self, model, train_loader, val_loader, epochs, learning_rate, checkpoint_pct, device='cpu'):
+
+    def __init__(self, model, preprocess_obj: Preprocess, train_loader, val_loader, epochs, learning_rate,
+                 checkpoint_pct, device='cpu'):
+
         self.__model = model
+        self.__feature_type = preprocess_obj.get_feature_type
         self.__train_loader = train_loader
         self.__val_loader = val_loader
+
         self.__epochs = epochs
         self.__lr = learning_rate
         self.__checkpoint_pct = checkpoint_pct
@@ -70,7 +79,7 @@ class Trainer:
 
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.__model.parameters(), lr=self.__lr)
-        model_base_path = f"inputs/models/saved_models/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
+        model_base_path = f"inputs/models/saved_models/{self.__feature_type}/{self.__model.get_dense_neurons}_dense_neurons_{self.__epochs}_epochs"
         curr_best_loss = sys.maxsize
         avg_train_losses = []
         avg_val_losses = []
