@@ -121,10 +121,6 @@ class Metrics:
     def __plot_feature_vectors(self):
         """Plots the flattened feature vectors in a 2D space after performing dimensionality reductions.
 
-        Returns
-        -------
-        None
-
         """
         base_path = Path(f"outputs/plots/{self.__feature_type}")
         concatenated_vectors = np.concatenate((self.__normal_vectors, self.__abnormal_vectors), axis=0)
