@@ -1,7 +1,11 @@
 import torch
+from tqdm import tqdm
 from sklearn.svm import OneClassSVM
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
+
+from source.metrics import Metrics
+from source.preprocess import Preprocess
 
 
 class Tester:
@@ -15,6 +19,9 @@ class Tester:
     _Tester.__ml_model : str
                          Chosen ML-Model to use.
 
+    _Tester.__feature_type : str
+                             Type of feature used.
+
     _Tester.__device : str
                        Device to run the DL-Model.
 
@@ -25,14 +32,15 @@ class Tester:
 
     """
 
-    def __init__(self, test_loader, ml_model, device):
+    def __init__(self, test_loader, ml_model, preprocess_obj: Preprocess, device):
         self.__test_loader = test_loader
         self.__ml_model = ml_model
+        self.__feature_type = preprocess_obj.get_feature_type
         self.__device = device
 
     def evaluate(self, model):
         """Extracts the embedding feature vectors of the pre-trained encoder after running the inference with the
-        scalograms and feeds them to the chosen ML model in order to compute the metrics.
+        features and feeds them to the chosen ML model in order to compute the metrics.
 
         Parameters
         ----------
@@ -57,12 +65,12 @@ class Tester:
         model.double()
         model.eval()
         with torch.no_grad():
-            for X, y in self.__test_loader:
+            for X, y in tqdm(self.__test_loader, desc="Testing"):
                 feature_vector = model.encoder_forward(X.to(self.__device))
                 if y == 1:
-                    normal_vectors.append(feature_vector.cpu().numpy())
+                    normal_vectors.append(X.cpu().numpy().flatten())
                 else:
-                    abnormal_vectors.append(feature_vector.cpu().numpy())
+                    abnormal_vectors.append(X.cpu().numpy().flatten())
 
                 y_pred = ml_model.fit_predict(feature_vector.cpu().numpy())
                 predictions.append(y_pred)
@@ -77,12 +85,9 @@ class Tester:
                 elif y_pred == 1 and y == -1:
                     FN += 1
 
-        accuracy = (TP + TN) / (TP + TN + FP + FN)
-        precision = TP / (TP + FP)
-        recall = TP / (TP + FN)
-        f1_score = 2 * precision * recall / (precision + recall)
+        metrics_obj = Metrics(TP, TN, FP, FN, normal_vectors, abnormal_vectors, self.__feature_type)
 
-        print(f"Accuracy: {accuracy:.4f}")
-        print(f"Precision: {precision:.4f}", )
-        print(f"Recall: {recall:.4f}")
-        print(f"F1-Score: {f1_score:.4f}")
+        print(f"Accuracy: {metrics_obj.compute_accuracy():.4f}")
+        print(f"Precision: {metrics_obj.compute_precision():.4f}", )
+        print(f"Recall: {metrics_obj.compute_recall():.4f}")
+        print(f"F1-Score: {metrics_obj.compute_f1_score():.4f}")

@@ -27,6 +27,7 @@ ECG-Anomaly-Detection/
 │  │  ├─ default.conf
 ├─ source/
 │  ├─ autoencoder.py
+│  ├─ metrics.py
 │  ├─ preprocess.py
 │  ├─ test.py
 │  ├─ train.py
@@ -63,7 +64,12 @@ channel=0
 
 [PREPROCESS]
 train_val_split_pct=0.98
-pickle_path=dataset/scalograms
+pickle_name=mitdir_100_window_len_128_hann_channel_0
+feature_type=spectrograms
+signal_sample_amount=400
+window_len=128
+step_len=6
+window=hann
 wavelet=mexh
 
 [ML-MODEL]
@@ -107,8 +113,7 @@ The Docstring methodology adopted in this project is the [Numpy Docstring Style 
 
 Below is an example of this documentation extracted from the current code:
 ```python
-    @staticmethod
-    def __segment(signals, peaks, annotations):
+    def __segment(self, signals, peaks, annotations):
         """Segments ECG signals into single beats.
 
         Parameters
@@ -126,8 +131,6 @@ Below is an example of this documentation extracted from the current code:
                        Segmented normal beats.
         abnormal_beats : numpy-array
                          Segmented anomaly beats.
-        mean_len : float
-                   Average amount of beat samples.
 
         """
 ```
