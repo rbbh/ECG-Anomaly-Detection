@@ -27,7 +27,7 @@ ECG-Anomaly-Detection/
 │  │  ├─ default.conf
 ├─ source/
 │  ├─ autoencoder.py
-|  ├─ metrics.py
+│  ├─ metrics.py
 │  ├─ preprocess.py
 │  ├─ test.py
 │  ├─ train.py
