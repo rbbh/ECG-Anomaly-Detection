@@ -53,7 +53,7 @@ class Tester:
         ground_truth = []
         predictions = []
 
-        TP = TN = FP = FN = 0
+        TP, TN, FP, FN = 0, 0, 0, 0
 
         if self.__ml_model == "oc-svm":
             ml_model = OneClassSVM(gamma=1e-3, nu=0.05)
@@ -88,6 +88,6 @@ class Tester:
         metrics_obj = Metrics(TP, TN, FP, FN, normal_vectors, abnormal_vectors, self.__feature_type)
 
         print(f"Accuracy: {metrics_obj.compute_accuracy():.4f}")
-        print(f"Precision: {metrics_obj.compute_precision():.4f}", )
+        print(f"Precision: {metrics_obj.compute_precision():.4f}")
         print(f"Recall: {metrics_obj.compute_recall():.4f}")
         print(f"F1-Score: {metrics_obj.compute_f1_score():.4f}")
